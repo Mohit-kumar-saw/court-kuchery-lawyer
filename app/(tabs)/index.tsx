@@ -1,98 +1,229 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+  Image,
+} from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+import { AppColors, ROUTES } from '@/constants';
+import { useAuth } from '@/contexts';
+import { getActiveCasesCount } from '@/data/dummyCases';
 
-export default function HomeScreen() {
+const STAT_CARDS = [
+  { id: 'cases', label: 'Active Cases', value: String(getActiveCasesCount()), icon: 'briefcase-outline', route: ROUTES.TABS.MY_CASES, color: AppColors.primary },
+  { id: 'pending', label: 'Pending (₹)', value: '0', icon: 'time-outline', route: ROUTES.TABS.WALLET, color: '#f59e0b' },
+  { id: 'paid', label: 'Paid (₹)', value: '0', icon: 'checkmark-circle-outline', route: ROUTES.TABS.WALLET, color: AppColors.success },
+  { id: 'clients', label: 'Clients', value: '4', icon: 'people-outline', route: ROUTES.TABS.CLIENTS, color: '#8b5cf6' },
+];
+
+const QUICK_ACTIONS = [
+  { id: 'cases', label: 'View My Cases', icon: 'document-text-outline', route: ROUTES.TABS.MY_CASES },
+  { id: 'chats', label: 'Client Chats', icon: 'chatbubble-ellipses-outline', route: ROUTES.TABS.CHAT_HISTORY },
+];
+
+export default function LawyerDashboardScreen() {
+  const { user } = useAuth();
+  const router = useRouter();
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <View style={styles.container}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Welcome */}
+        <View style={styles.welcomeSection}>
+          <View style={styles.welcomeLeft}>
+            <Text style={styles.welcomeText}>
+              Hi, Adv. {user?.name ?? 'Lawyer'} 👋
+            </Text>
+            <Text style={styles.tagline}>Manage your practice</Text>
+          </View>
+          <View style={styles.logoWrap}>
+            <Image source={require('@/assets/court/scale2.png')} style={styles.logo} />
+          </View>
+        </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+        {/* Stats Grid */}
+        <View style={styles.statsGrid}>
+          {STAT_CARDS.map((stat) => (
+            <TouchableOpacity
+              key={stat.id}
+              style={styles.statCard}
+              onPress={() => router.push(stat.route as any)}
+              activeOpacity={0.8}
+            >
+              <View style={[styles.statIconWrap, { backgroundColor: `${stat.color}20` }]}>
+                <Ionicons name={stat.icon as any} size={24} color={stat.color} />
+              </View>
+              <Text style={styles.statValue}>{stat.value}</Text>
+              <Text style={styles.statLabel}>{stat.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.actionsRow}>
+            {QUICK_ACTIONS.map((action) => (
+              <TouchableOpacity
+                key={action.id}
+                style={styles.actionCard}
+                onPress={() => router.push(action.route as any)}
+                activeOpacity={0.8}
+              >
+                <Ionicons name={action.icon as any} size={28} color={AppColors.primary} />
+                <Text style={styles.actionCardText}>{action.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* Info Card */}
+        <View style={styles.infoCard}>
+          <Ionicons name="information-circle-outline" size={24} color={AppColors.primary} />
+          <View style={styles.infoText}>
+            <Text style={styles.infoTitle}>Your Practice</Text>
+            <Text style={styles.infoSub}>
+              {user?.specialization || 'Legal'} • {user?.experienceYears || '0'} yrs exp • ₹{user?.ratePerMinute || '—'}/min
+            </Text>
+          </View>
+        </View>
+
+        <View style={{ height: 24 }} />
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: AppColors.background,
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+  },
+  welcomeSection: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    padding: 20,
+    backgroundColor: '#ebf2ff',
+    borderRadius: 20,
+  },
+  welcomeLeft: {
+    flex: 1,
+  },
+  welcomeText: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: AppColors.text,
+    marginBottom: 4,
+  },
+  tagline: {
+    fontSize: 14,
+    color: AppColors.textSecondary,
+  },
+  logoWrap: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: AppColors.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  logo: {
+    width: 44,
+    height: 44,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    marginBottom: 24,
+  },
+  statCard: {
+    width: '47%',
+    backgroundColor: AppColors.white,
+    borderRadius: 16,
+    padding: 16,
+  },
+  statIconWrap: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  statValue: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: AppColors.text,
+    marginBottom: 2,
+  },
+  statLabel: {
+    fontSize: 13,
+    color: AppColors.textSecondary,
+  },
+  section: {
+    marginBottom: 24,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: AppColors.text,
+    marginBottom: 12,
+  },
+  actionsRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  actionCard: {
+    flex: 1,
+    backgroundColor: AppColors.white,
+    borderRadius: 12,
+    paddingVertical: 20,
     alignItems: 'center',
     gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  actionCardText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: AppColors.text,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  infoCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#ebf2ff',
+    borderRadius: 12,
+    padding: 16,
+    gap: 12,
+  },
+  infoText: {
+    flex: 1,
+  },
+  infoTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: AppColors.text,
+    marginBottom: 2,
+  },
+  infoSub: {
+    fontSize: 13,
+    color: AppColors.textSecondary,
   },
 });
