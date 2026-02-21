@@ -25,8 +25,8 @@ async function logoutBackend() {
   try {
     await api.post('/auth/logout');
   } catch (err) {
-    console.log("logout not possible....",err);
-    
+    console.log("logout not possible....", err);
+
   }
 
   await tokenStorage.clear();
@@ -34,20 +34,8 @@ async function logoutBackend() {
 
 const MENU_ITEMS = [
   {
-    id: 'my-cases',
-    label: 'My Cases',
-    icon: 'document-text-outline',
-    route: ROUTES.TABS.MY_CASES,
-  },
-  {
-    id: 'clients',
-    label: 'Clients',
-    icon: 'people-outline',
-    route: ROUTES.TABS.CLIENTS,
-  },
-  {
     id: 'chat-history',
-    label: 'Client Chats',
+    label: 'My Consults',
     icon: 'chatbubble-ellipses-outline',
     route: ROUTES.TABS.CHAT_HISTORY,
   },
@@ -62,12 +50,6 @@ const MENU_ITEMS = [
     label: 'Change Password',
     icon: 'lock-closed-outline',
     route: ROUTES.TABS.CHANGE_PASSWORD,
-  },
-  {
-    id: 'about',
-    label: 'About App',
-    icon: 'information-circle-outline',
-    route: ROUTES.TABS.ABOUT,
   },
 ];
 

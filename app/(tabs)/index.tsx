@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useEffect, useState } from 'react';
 import {
   ScrollView,
   StyleSheet,
@@ -7,27 +8,83 @@ import {
   TouchableOpacity,
   View,
   Image,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 
 import { AppColors, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts';
-import { getActiveCasesCount } from '@/data/dummyCases';
+import { lawyerService } from '@/services/lawyerService';
 
 const STAT_CARDS = [
-  { id: 'cases', label: 'Active Cases', value: String(getActiveCasesCount()), icon: 'briefcase-outline', route: ROUTES.TABS.MY_CASES, color: AppColors.primary },
-  { id: 'pending', label: 'Pending (₹)', value: '0', icon: 'time-outline', route: ROUTES.TABS.WALLET, color: '#f59e0b' },
-  { id: 'paid', label: 'Paid (₹)', value: '0', icon: 'checkmark-circle-outline', route: ROUTES.TABS.WALLET, color: AppColors.success },
-  { id: 'clients', label: 'Clients', value: '4', icon: 'people-outline', route: ROUTES.TABS.CLIENTS, color: '#8b5cf6' },
+  { id: 'pending', label: 'Consultations', value: '0', icon: 'chatbubbles-outline', route: ROUTES.TABS.CHAT_HISTORY, color: AppColors.primary },
+  { id: 'paid', label: 'Total Earnings (₹)', value: '0', icon: 'wallet-outline', route: ROUTES.TABS.WALLET, color: AppColors.success },
 ];
 
 const QUICK_ACTIONS = [
-  { id: 'cases', label: 'View My Cases', icon: 'document-text-outline', route: ROUTES.TABS.MY_CASES },
-  { id: 'chats', label: 'Client Chats', icon: 'chatbubble-ellipses-outline', route: ROUTES.TABS.CHAT_HISTORY },
+  { id: 'chats', label: 'My Consults', icon: 'chatbubble-ellipses-outline', route: ROUTES.TABS.CHAT_HISTORY },
+  { id: 'wallet', label: 'View Wallet', icon: 'wallet-outline', route: ROUTES.TABS.WALLET },
 ];
 
 export default function LawyerDashboardScreen() {
   const { user } = useAuth();
   const router = useRouter();
+
+  const [stats, setStats] = useState({
+    totalEarnings: 0,
+    totalConsultations: 0,
+    totalClients: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const fetchStats = async () => {
+    try {
+      const data = await lawyerService.getStats();
+      setStats(data);
+    } catch (err) {
+      console.error("FETCH STATS ERR", err);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchStats();
+  };
+
+  const STAT_CARDS = [
+    {
+      id: 'pending',
+      label: 'Consultations',
+      value: stats.totalConsultations.toString(),
+      icon: 'chatbubbles-outline',
+      route: ROUTES.TABS.CHAT_HISTORY,
+      color: AppColors.primary
+    },
+    {
+      id: 'paid',
+      label: 'Total Earnings (₹)',
+      value: stats.totalEarnings.toFixed(2),
+      icon: 'wallet-outline',
+      route: ROUTES.TABS.WALLET,
+      color: AppColors.success
+    },
+    {
+      id: 'clients',
+      label: 'Global Clients',
+      value: stats.totalClients.toString(),
+      icon: 'people-outline',
+      route: ROUTES.TABS.CHAT_HISTORY,
+      color: '#FF9800'
+    },
+  ];
 
   return (
     <View style={styles.container}>
@@ -35,6 +92,9 @@ export default function LawyerDashboardScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[AppColors.primary]} />
+        }
       >
         {/* Welcome */}
         <View style={styles.welcomeSection}>
@@ -54,7 +114,7 @@ export default function LawyerDashboardScreen() {
           {STAT_CARDS.map((stat) => (
             <TouchableOpacity
               key={stat.id}
-              style={styles.statCard}
+              style={[styles.statCard, stat.id === 'clients' && { width: '100%' }]}
               onPress={() => router.push(stat.route as any)}
               activeOpacity={0.8}
             >

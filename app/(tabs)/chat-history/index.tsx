@@ -1,12 +1,22 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
 
 import { AppColors } from '@/constants/theme';
-import { getConversations } from '@/data/dummyClients';
-import type { Conversation } from '@/data/dummyClients';
+import { consultService } from '@/services/consultService';
 
-const conversations = getConversations();
+type Consultation = {
+  _id: string;
+  userId: {
+    _id: string;
+    name: string;
+    profileImage?: string;
+  };
+  status: string;
+  type: string;
+  createdAt: string;
+};
 
 function formatTime(iso: string) {
   const d = new Date(iso);
@@ -17,35 +27,50 @@ function formatTime(iso: string) {
   return d.toLocaleDateString([], { day: 'numeric', month: 'short' });
 }
 
-function truncate(text: string, max: number) {
-  return text.length > max ? text.slice(0, max) + '…' : text;
-}
-
 export default function ChatHistoryScreen() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [consultations, setConsultations] = useState<Consultation[]>([]);
 
-  const handleChatPress = (conv: Conversation) => {
-    router.push(`/chat-history/${conv.clientId}`);
+  const fetchConsultations = async () => {
+    try {
+      const res = await consultService.getLawyerConsultations();
+      setConsultations(res.consultations);
+    } catch (error) {
+      console.error("FETCH CONSULTATIONS ERROR:", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const renderChat = ({ item }: { item: Conversation }) => (
+  useEffect(() => {
+    fetchConsultations();
+  }, []);
+
+  const handleChatPress = (consultation: Consultation) => {
+    router.push(`/chat-history/${consultation._id}`);
+  };
+
+  const renderChat = ({ item }: { item: Consultation }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => handleChatPress(item)}
       activeOpacity={0.8}
     >
       <View style={styles.avatar}>
-        <Text style={styles.avatarText}>{item.client.avatar}</Text>
+        <Text style={styles.avatarText}>
+          {item.userId?.name?.charAt(0) || '?'}
+        </Text>
       </View>
       <View style={styles.content}>
         <View style={styles.row}>
-          <Text style={styles.name}>{item.client.name}</Text>
-          <Text style={styles.time}>{formatTime(item.lastMessageAt)}</Text>
+          <Text style={styles.name}>{item.userId?.name || 'Unknown User'}</Text>
+          <Text style={styles.time}>{formatTime(item.createdAt)}</Text>
         </View>
-        <Text style={styles.preview} numberOfLines={2}>
-          {truncate(item.lastMessage, 50)}
+        <Text style={styles.preview} numberOfLines={1}>
+          Consultation Status: {item.status}
         </Text>
-        <Text style={styles.caseType}>{item.client.caseType}</Text>
+        <Text style={styles.caseType}>{item.type}</Text>
       </View>
       <Ionicons name="chevron-forward" size={18} color={AppColors.textSecondary} />
     </TouchableOpacity>
@@ -59,13 +84,25 @@ export default function ChatHistoryScreen() {
         </TouchableOpacity>
         <Text style={styles.title}>Client Chats</Text>
       </View>
-      <FlatList
-        data={conversations}
-        keyExtractor={(item) => item.clientId}
-        renderItem={renderChat}
-        contentContainerStyle={styles.list}
-        showsVerticalScrollIndicator={false}
-      />
+
+      {loading ? (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color={AppColors.primary} />
+        </View>
+      ) : (
+        <FlatList
+          data={consultations}
+          keyExtractor={(item) => item._id}
+          renderItem={renderChat}
+          contentContainerStyle={styles.list}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.empty}>
+              <Text style={styles.emptyText}>No consultations yet</Text>
+            </View>
+          }
+        />
+      )}
     </View>
   );
 }
@@ -74,6 +111,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: AppColors.background,
+  },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   header: {
     flexDirection: 'row',
@@ -109,7 +151,7 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 24,
-    backgroundColor: AppColors.primaryLight,
+    backgroundColor: '#cadcff',
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
@@ -146,5 +188,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: AppColors.primary,
     fontWeight: '500',
+    textTransform: 'capitalize',
+  },
+  empty: {
+    marginTop: 100,
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 16,
+    color: AppColors.textSecondary,
   },
 });

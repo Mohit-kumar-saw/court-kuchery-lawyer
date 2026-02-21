@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts';
 
 export default function IndexScreen() {
   const router = useRouter();
-  const { hasCompletedSplash, isLoggedIn } = useAuth();
+  const { hasCompletedSplash, isLoggedIn, activeSessionId } = useAuth();
 
   useEffect(() => {
     // Defer navigation until after Root Layout's navigator has mounted
@@ -20,10 +20,16 @@ export default function IndexScreen() {
         router.replace(ROUTES.AUTH.LOGIN);
         return;
       }
+
+      if (activeSessionId) {
+        router.replace(`/chat-history/${activeSessionId}`);
+        return;
+      }
+
       router.replace(ROUTES.TABS.ROOT);
     }, 0);
     return () => clearTimeout(id);
-  }, [hasCompletedSplash, isLoggedIn, router]);
+  }, [hasCompletedSplash, isLoggedIn, activeSessionId, router]);
 
   return (
     <View style={styles.container}>

@@ -7,7 +7,7 @@ type LawyerFilters = {
   minPrice?: number;
   maxPrice?: number;
   onlineOnly?: boolean;
-  limit?:number
+  limit?: number
 };
 
 export const lawyerService = {
@@ -22,5 +22,10 @@ export const lawyerService = {
   async getLawyerById(id: string) {
     const response = await api.get(`/lawyer/${id}`);
     return response.data;
+  },
+
+  async getStats() {
+    const response = await api.get('/lawyer/stats');
+    return response.data.stats;
   },
 };

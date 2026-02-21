@@ -7,10 +7,39 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { HapticTab } from '@/components/haptic-tab';
 import { Navbar, Sidebar } from '@/components/layout';
 import { AppColors } from '@/constants/theme';
+import { IncomingConsultModal } from '@/components/IncomingConsultModal';
+import { useAuth } from '@/contexts';
+import { consultService } from '@/services/consultService';
+import { useRouter } from 'expo-router';
 
 export default function TabLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const insets = useSafeAreaInsets();
+  const { activeRequest, clearRequest } = useAuth();
+  const router = useRouter();
+
+  const handleAccept = async () => {
+    try {
+      if (!activeRequest) return;
+      await consultService.acceptSession(activeRequest.sessionId);
+      const sessionId = activeRequest.sessionId;
+      clearRequest();
+      // Navigate to chat
+      router.push(`/chat-history/${sessionId}` as any);
+    } catch (error) {
+      console.error("Accept error:", error);
+    }
+  };
+
+  const handleDecline = async () => {
+    try {
+      if (!activeRequest) return;
+      await consultService.declineSession(activeRequest.sessionId);
+      clearRequest();
+    } catch (error) {
+      console.error("Decline error:", error);
+    }
+  };
 
   return (
     <View
@@ -54,11 +83,11 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
-          name="my-cases"
+          name="chat-history"
           options={{
-            title: 'Cases',
+            title: 'Consults',
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="briefcase-outline" size={size} color={color} />
+              <Ionicons name="chatbubbles-outline" size={size} color={color} />
             ),
           }}
         />
@@ -84,9 +113,9 @@ export default function TabLayout() {
         />
 
         {/* 🔒 Hidden routes */}
+        <Tabs.Screen name="my-cases" options={{ href: null }} />
         <Tabs.Screen name="lawyers" options={{ href: null }} />
         <Tabs.Screen name="clients" options={{ href: null }} />
-        <Tabs.Screen name="chat-history" options={{ href: null }} />
         <Tabs.Screen name="change-password" options={{ href: null }} />
         <Tabs.Screen name="about" options={{ href: null }} />
         <Tabs.Screen name="lawyers/[id]" options={{ href: null }} />
@@ -96,6 +125,13 @@ export default function TabLayout() {
       <Sidebar
         visible={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+      />
+
+      <IncomingConsultModal
+        visible={!!activeRequest}
+        request={activeRequest}
+        onAccept={handleAccept}
+        onDecline={handleDecline}
       />
     </View>
   );

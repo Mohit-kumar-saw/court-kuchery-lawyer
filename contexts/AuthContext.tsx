@@ -8,7 +8,9 @@ import React, {
 
 import { authService } from "@/services/auth.service";
 import { tokenStorage } from "@/services/tokenStorage";
+import { socketService } from "@/services/socket";
 import type { User } from "@/types";
+import { useRouter } from "expo-router";
 
 type AuthContextType = {
   hasCompletedSplash: boolean;
@@ -16,8 +18,13 @@ type AuthContextType = {
   user: User | null;
   isLoggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, phone:string, password: string,  specialization: string,experienceYears: string,ratePerMinute: string) => Promise<void>;
+  signUp: (name: string, email: string, phone: string, password: string, specialization: string, experienceYears: string, ratePerMinute: string) => Promise<void>;
   logout: () => Promise<void>;
+  activeRequest: any | null;
+  clearRequest: () => void;
+  activeSessionId: string | null;
+  trackActiveSession: (sessionId: string) => Promise<void>;
+  clearActiveSession: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -25,25 +32,82 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [hasCompletedSplash, setHasCompletedSplash] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [activeRequest, setActiveRequest] = useState<any | null>(null);
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
 
   const isLoggedIn = !!user;
+  const router = useRouter();
+
+  const SESSION_ID_KEY = "active_session_id";
+
+  const trackActiveSession = useCallback(async (sessionId: string) => {
+    setActiveSessionId(sessionId);
+    await tokenStorage.setActiveSessionData(sessionId);
+  }, []);
+
+  const clearActiveSession = useCallback(async () => {
+    setActiveSessionId(null);
+    await tokenStorage.clearActiveSessionData();
+  }, []);
+
+  /* =============================
+     SOCKET HANDLERS
+  ============================== */
+  const setupSocket = useCallback(async () => {
+    const socket = await socketService.initialize();
+    if (socket) {
+      socket.on("CONSULT_REQUEST", (data) => {
+        console.log("📥 New Consultation Request:", data);
+        setActiveRequest(data);
+      });
+
+      socket.on("CONSULT_CANCELLED", (data) => {
+        console.log("🚫 Consultation Cancelled:", data);
+        setActiveRequest((prev: any) => {
+          if (prev?.sessionId === data.sessionId) {
+            return null;
+          }
+          return prev;
+        });
+      });
+    }
+  }, []);
 
   /* =============================
      RESTORE SESSION
   ============================== */
   useEffect(() => {
     const restoreSession = async () => {
-      const token = await tokenStorage.getAccessToken();
+      try {
+        const token = await tokenStorage.getAccessToken();
 
-      if (token) {
-        // OPTIONAL:
-        // Later create GET /auth/me to fetch user
-        // For now just assume logged in
+        if (token) {
+          const userProfile = await authService.getProfile();
+          setUser(userProfile);
+
+          const storedSessionId = await tokenStorage.getActiveSessionData();
+          if (storedSessionId) {
+            setActiveSessionId(storedSessionId);
+          }
+        }
+      } catch (err) {
+        console.log("RESTORE SESSION ERROR", err);
+        await tokenStorage.clear();
+      } finally {
+        setHasCompletedSplash(true);
       }
     };
 
     restoreSession();
   }, []);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      setupSocket();
+    } else {
+      socketService.disconnect();
+    }
+  }, [isLoggedIn, setupSocket]);
 
   /* =============================
      SPLASH
@@ -57,7 +121,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ============================== */
   const login = useCallback(async (email: string, password: string) => {
     const user = await authService.login({ email, password });
-
     setUser(user);
   }, []);
 
@@ -95,6 +158,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     await authService.logout();
     setUser(null);
+    socketService.disconnect();
+  }, []);
+
+  const clearRequest = useCallback(() => {
+    setActiveRequest(null);
   }, []);
 
   return (
@@ -107,6 +175,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         signUp,
         logout,
+        activeRequest,
+        clearRequest,
+        activeSessionId,
+        trackActiveSession,
+        clearActiveSession,
       }}
     >
       {children}

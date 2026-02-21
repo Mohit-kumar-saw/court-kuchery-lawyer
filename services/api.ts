@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { tokenStorage } from './tokenStorage';
 
-const BASE_URL = 'http://localhost:4000';
+const BASE_URL = 'https://court-kuchery-backend.onrender.com';
 
 export const api = axios.create({
   baseURL: BASE_URL,
