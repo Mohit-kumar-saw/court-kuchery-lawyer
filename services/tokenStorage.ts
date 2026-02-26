@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 
-const ACCESS_KEY = 'accessToken';
-const REFRESH_KEY = 'refreshToken';
+const ACCESS_KEY = 'lawyer_accessToken';
+const REFRESH_KEY = 'lawyer_refreshToken';
 
 export const tokenStorage = {
   async setTokens(accessToken: string, refreshToken: string) {

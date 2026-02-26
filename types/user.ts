@@ -7,9 +7,12 @@ export type User = {
   name: string;
   email: string;
   phone?: string;
-  specialization: string,
-  experienceYears: string,
-  ratePerMinute: string
+  specialization?: string[],
+  experienceYears?: number,
+  ratePerMinute?: number,
+  profileCompleted: boolean;
+  barCouncilId?: string;
+  bio?: string;
 };
 
 export type LoginCredentials = {
@@ -19,12 +22,17 @@ export type LoginCredentials = {
 
 export type SignUpCredentials = {
   name: string;
-  phone?: string;
+  phone: string;
   email: string;
   password: string;
-  specialization: string,
-  experienceYears: string,
-  ratePerMinute: string
+};
+
+export type CompleteProfileData = {
+  specialization: string[];
+  experienceYears: number;
+  ratePerMinute: number;
+  bio: string;
+  barCouncilId: string;
 };
 
 export type Lawyer = {

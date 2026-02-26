@@ -73,7 +73,7 @@ export default function LawyerWalletScreen() {
       setModalVisible(false);
       setWithdrawAmount('');
       await fetchWallet();
-      Alert.alert('Withdrawal Initiated');
+      Alert.alert('Withdrawal Successful', 'Funds have been transferred to your bank account.');
     } catch (error) {
       Alert.alert('Withdrawal Failed');
     } finally {

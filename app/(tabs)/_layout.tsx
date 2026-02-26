@@ -15,8 +15,15 @@ import { useRouter } from 'expo-router';
 export default function TabLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const insets = useSafeAreaInsets();
-  const { activeRequest, clearRequest } = useAuth();
+  const { user, activeRequest, clearRequest } = useAuth();
   const router = useRouter();
+
+  // 🛡️ PROFILE COMPLETION GUARD
+  React.useEffect(() => {
+    if (user && !user.profileCompleted) {
+      router.replace("/(auth)/complete-profile" as any);
+    }
+  }, [user, user?.profileCompleted]);
 
   const handleAccept = async () => {
     try {
@@ -85,9 +92,9 @@ export default function TabLayout() {
         <Tabs.Screen
           name="chat-history"
           options={{
-            title: 'Consults',
+            title: 'My Cases',
             tabBarIcon: ({ color, size }) => (
-              <Ionicons name="chatbubbles-outline" size={size} color={color} />
+              <Ionicons name="briefcase-outline" size={size} color={color} />
             ),
           }}
         />

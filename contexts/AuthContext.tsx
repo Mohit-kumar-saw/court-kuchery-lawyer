@@ -13,12 +13,14 @@ import type { User } from "@/types";
 import { useRouter } from "expo-router";
 
 type AuthContextType = {
+  isRestoring: boolean;
   hasCompletedSplash: boolean;
   completeSplash: () => void;
   user: User | null;
   isLoggedIn: boolean;
   login: (email: string, password: string) => Promise<void>;
-  signUp: (name: string, email: string, phone: string, password: string, specialization: string, experienceYears: string, ratePerMinute: string) => Promise<void>;
+  signUp: (name: string, email: string, phone: string, password: string) => Promise<void>;
+  completeProfile: (data: any) => Promise<void>;
   logout: () => Promise<void>;
   activeRequest: any | null;
   clearRequest: () => void;
@@ -30,6 +32,7 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [isRestoring, setIsRestoring] = useState(true);
   const [hasCompletedSplash, setHasCompletedSplash] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [activeRequest, setActiveRequest] = useState<any | null>(null);
@@ -84,6 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (token) {
           const userProfile = await authService.getProfile();
           setUser(userProfile);
+          setHasCompletedSplash(true); // Found user, skip onboarding
 
           const storedSessionId = await tokenStorage.getActiveSessionData();
           if (storedSessionId) {
@@ -91,10 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
       } catch (err) {
-        console.log("RESTORE SESSION ERROR", err);
-        await tokenStorage.clear();
+        console.log("RESTORE SESSION ERROR (PROBABLY NETWORK/AUTH)", err);
       } finally {
-        setHasCompletedSplash(true);
+        setIsRestoring(false);
       }
     };
 
@@ -132,25 +135,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       name: string,
       email: string,
       phone: string,
-      password: string,
-      specialization: string,
-      experienceYears: string,
-      ratePerMinute: string
+      password: string
     ) => {
       const user = await authService.signUp({
         name,
         email,
         phone,
         password,
-        specialization,
-        experienceYears,
-        ratePerMinute,
       });
 
       setUser(user);
     },
     []
   );
+
+  const completeProfile = useCallback(async (data: any) => {
+    const updatedUser = await authService.completeProfile(data);
+    setUser((prev: any) => ({ ...prev, ...updatedUser, profileCompleted: true }));
+  }, []);
 
   /* =============================
      LOGOUT
@@ -168,12 +170,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
+        isRestoring,
         hasCompletedSplash,
         completeSplash,
         user,
         isLoggedIn,
         login,
         signUp,
+        completeProfile,
         logout,
         activeRequest,
         clearRequest,

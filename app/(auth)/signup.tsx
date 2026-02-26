@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -11,9 +11,11 @@ import {
   TouchableOpacity,
   View,
   ActivityIndicator,
+  Image,
 } from "react-native";
 
 import { useAuth } from "@/contexts/AuthContext";
+import { AppColors, ROUTES } from "@/constants";
 
 export default function LawyerSignupScreen() {
   const router = useRouter();
@@ -23,10 +25,7 @@ export default function LawyerSignupScreen() {
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
-
-  const [specialization, setSpecialization] = useState("");
-  const [experienceYears, setExperienceYears] = useState("");
-  const [ratePerMinute, setRatePerMinute] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -36,30 +35,15 @@ export default function LawyerSignupScreen() {
       setError("");
       setLoading(true);
 
-      if (
-        !name ||
-        !email ||
-        !phone ||
-        !password ||
-        !specialization ||
-        !experienceYears ||
-        !ratePerMinute
-      ) {
+      if (!name || !email || !phone || !password) {
         setError("All fields are required");
         return;
       }
 
-      await signUp(
-        name,
-        email,
-        phone,
-        password,
-        specialization,
-        experienceYears,
-        ratePerMinute
-      );
+      await signUp(name, email, phone, password);
 
-      router.replace("/(tabs)");
+      // Successfully registered, now go to complete profile
+      router.replace("/complete-profile" as any);
     } catch (err: any) {
       setError(err?.response?.data?.message || "Registration failed");
     } finally {
@@ -72,140 +56,219 @@ export default function LawyerSignupScreen() {
       style={styles.container}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <ScrollView contentContainerStyle={styles.content}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="chevron-back" size={24} color={AppColors.primary} />
+          <Text style={styles.backText}>Back</Text>
+        </TouchableOpacity>
+
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("@/assets/court/court-k-logo.png")}
+            style={styles.logo}
+          />
+        </View>
+
         <Text style={styles.title}>Lawyer Registration</Text>
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
 
         {/* NAME */}
-        <Input icon="person-outline" placeholder="Full Name" value={name} setValue={setName} />
+        <View style={styles.inputContainer}>
+          <Ionicons name="person-outline" size={20} color={AppColors.primaryLight} />
+          <TextInput
+            style={styles.input}
+            placeholder="Full Name"
+            placeholderTextColor={AppColors.textSecondary}
+            value={name}
+            onChangeText={setName}
+            autoCapitalize="words"
+          />
+        </View>
 
         {/* EMAIL */}
-        <Input
-          icon="mail-outline"
-          placeholder="Email"
-          value={email}
-          setValue={setEmail}
-          keyboardType="email-address"
-        />
+        <View style={styles.inputContainer}>
+          <Ionicons name="mail-outline" size={20} color={AppColors.primaryLight} />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            placeholderTextColor={AppColors.textSecondary}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
 
         {/* PHONE */}
-        <Input
-          icon="call-outline"
-          placeholder="Phone Number"
-          value={phone}
-          setValue={setPhone}
-          keyboardType="phone-pad"
-        />
+        <View style={styles.inputContainer}>
+          <Ionicons name="call-outline" size={20} color={AppColors.primaryLight} />
+          <View style={styles.phonePrefixContainer}>
+            <Text style={styles.flagEmoji}>🇮🇳</Text>
+            <Text style={styles.prefixText}>+91</Text>
+          </View>
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            placeholderTextColor={AppColors.textSecondary}
+            value={phone}
+            onChangeText={setPhone}
+            keyboardType="phone-pad"
+          />
+        </View>
 
         {/* PASSWORD */}
-        <Input
-          icon="lock-closed-outline"
-          placeholder="Password"
-          value={password}
-          setValue={setPassword}
-          secure
-        />
-
-        {/* SPECIALIZATION */}
-        <Input
-          icon="briefcase-outline"
-          placeholder="Specialization (e.g. Criminal)"
-          value={specialization}
-          setValue={setSpecialization}
-        />
-
-        {/* EXPERIENCE */}
-        <Input
-          icon="time-outline"
-          placeholder="Experience (Years)"
-          value={experienceYears}
-          setValue={setExperienceYears}
-          keyboardType="numeric"
-        />
-
-        {/* RATE */}
-        <Input
-          icon="cash-outline"
-          placeholder="Rate per minute (₹)"
-          value={ratePerMinute}
-          setValue={setRatePerMinute}
-          keyboardType="numeric"
-        />
+        <View style={styles.inputContainer}>
+          <Ionicons name="lock-closed-outline" size={20} color={AppColors.primaryLight} />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            placeholderTextColor={AppColors.textSecondary}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={!showPassword}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? "eye-off-outline" : "eye-outline"}
+              size={22}
+              color={AppColors.textSecondary}
+            />
+          </TouchableOpacity>
+        </View>
 
         <TouchableOpacity
-          style={styles.button}
+          style={styles.registerButton}
           onPress={handleSignup}
+          activeOpacity={0.8}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Register as Lawyer</Text>
+            <Text style={styles.registerButtonText}>Continue to Profile Details</Text>
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push("/login")}>
-          <Text style={styles.link}>Already registered? Login</Text>
-        </TouchableOpacity>
+        <View style={styles.loginRow}>
+          <Text style={styles.loginPrompt}>Already registered?</Text>
+          <Link href={ROUTES.AUTH.LOGIN} asChild>
+            <TouchableOpacity>
+              <Text style={styles.loginLink}>Login</Text>
+            </TouchableOpacity>
+          </Link>
+        </View>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
-/* 🔹 Reusable Input Component */
-function Input({
-  icon,
-  placeholder,
-  value,
-  setValue,
-  secure,
-  keyboardType,
-}: any) {
-  return (
-    <View style={styles.inputContainer}>
-      <Ionicons name={icon} size={20} color="#2563EB" />
-      <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        value={value}
-        onChangeText={setValue}
-        secureTextEntry={secure}
-        keyboardType={keyboardType}
-      />
-    </View>
-  );
-}
-
-/* ================= STYLES ================= */
-
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fff" },
-  content: { padding: 24, paddingTop: 60 },
-  title: { fontSize: 28, fontWeight: "700", marginBottom: 30 },
-  error: { color: "red", marginBottom: 10 },
+  container: {
+    flex: 1,
+    backgroundColor: AppColors.white,
+    paddingTop: 25,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: 40,
+  },
+  backButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 15,
+  },
+  backText: {
+    fontSize: 16,
+    color: AppColors.primary,
+    marginLeft: 4,
+  },
+  logoContainer: {
+    alignItems: "center",
+    marginBottom: 24,
+  },
+  logo: {
+    width: 210,
+    height: 74,
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: AppColors.text,
+    marginBottom: 24,
+  },
+  error: {
+    color: "red",
+    marginBottom: 16,
+    textAlign: "center",
+  },
   inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#2563EB",
+    borderColor: AppColors.primaryLight,
     borderRadius: 12,
     paddingHorizontal: 16,
     marginBottom: 16,
     gap: 12,
   },
-  input: { flex: 1, paddingVertical: 14 },
-  button: {
-    backgroundColor: "#2563EB",
+  phonePrefixContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    borderRightWidth: 1,
+    borderRightColor: AppColors.border,
+    paddingRight: 8,
+  },
+  flagEmoji: {
+    fontSize: 18,
+  },
+  prefixText: {
+    fontSize: 16,
+    color: AppColors.text,
+    fontWeight: "500",
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: AppColors.text,
+  },
+  registerButton: {
+    backgroundColor: AppColors.primary,
     paddingVertical: 16,
     borderRadius: 12,
     alignItems: "center",
     marginTop: 10,
+    marginBottom: 24,
   },
-  buttonText: { color: "#fff", fontSize: 16, fontWeight: "600" },
-  link: {
-    marginTop: 20,
-    textAlign: "center",
-    color: "#2563EB",
+  registerButtonText: {
+    color: AppColors.white,
+    fontSize: 18,
+    fontWeight: "600",
+  },
+  loginRow: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 6,
+  },
+  loginPrompt: {
+    fontSize: 15,
+    color: AppColors.textSecondary,
+  },
+  loginLink: {
+    fontSize: 15,
+    color: AppColors.primary,
+    fontWeight: "600",
   },
 });

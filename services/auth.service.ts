@@ -11,31 +11,15 @@ export const authService = {
     await tokenStorage.setTokens(accessToken, refreshToken);
 
     return lawyer;
-    // await new Promise((res) => setTimeout(res, 800));
 
-    // const dummyUser = {
-    //   id: "1",
-    //   name: "Dummy Lawyer",
-    //   email: credentials.email,
-    //   specialization: "Criminal",
-    //   experienceYears: "5",
-    //   ratePerMinute: "10",
-    // };
-
-    // Optional: store fake tokens
-    // await tokenStorage.setTokens("dummyAccessToken", "dummyRefreshToken");
-
-    // return dummyUser;
   },
 
   async signUp(credentials: SignUpCredentials) {
-    const response = await api.post('/auth/register', credentials);
+    const response = await api.post('/lawyer/register', credentials);
 
-    const { accessToken, refreshToken, user } = response.data;
-
-    await tokenStorage.setTokens(accessToken, refreshToken);
-
-    return user;
+    // Note: Lawyers require admin verification, so no token is returned on register.
+    // They must login after being verified.
+    return response.data;
   },
 
   async logout() {
@@ -44,6 +28,11 @@ export const authService = {
 
   async getProfile() {
     const response = await api.get('/lawyer/me');
+    return response.data.lawyer;
+  },
+
+  async completeProfile(data: any) {
+    const response = await api.post('/lawyer/complete-profile', data);
     return response.data.lawyer;
   },
 };

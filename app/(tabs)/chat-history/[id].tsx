@@ -267,10 +267,10 @@ export default function ChatDetailScreen() {
               style={styles.summaryBtn}
               onPress={async () => {
                 await clearActiveSession();
-                router.replace("/chat-history");
+                router.replace("/my-cases");
               }}
             >
-              <Text style={styles.summaryBtnText}>Back to Consults</Text>
+              <Text style={styles.summaryBtnText}>Back to Cases</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -35,7 +35,7 @@ export default function LawyersScreen() {
   const [loading, setLoading] = useState(true);
 
   const [activePill, setActivePill] =
-    useState<"All" | "Family" | "Criminal" | "Cyber">("All");
+    useState<"All" | "Family" | "criminal" | "Cyber">("All");
 
   const [showFilter, setShowFilter] = useState(false);
 
@@ -115,7 +115,7 @@ export default function LawyersScreen() {
                     />
                   </Pressable>
 
-                  {["All", "Family", "Criminal", "Cyber"].map(
+                  {["All", "Family", "criminal", "Cyber"].map(
                     (pill) => {
                       const isActive =
                         activePill === pill;
@@ -331,12 +331,12 @@ export default function LawyersScreen() {
                 </Text>
                 {filters.sort ===
                   item.value && (
-                  <Ionicons
-                    name="checkmark"
-                    size={18}
-                    color="#2F5BEA"
-                  />
-                )}
+                    <Ionicons
+                      name="checkmark"
+                      size={18}
+                      color="#2F5BEA"
+                    />
+                  )}
               </Pressable>
             ))}
 

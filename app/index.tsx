@@ -7,29 +7,34 @@ import { useAuth } from '@/contexts';
 
 export default function IndexScreen() {
   const router = useRouter();
-  const { hasCompletedSplash, isLoggedIn, activeSessionId } = useAuth();
+  const { isRestoring, hasCompletedSplash, isLoggedIn, activeSessionId } = useAuth();
 
   useEffect(() => {
-    // Defer navigation until after Root Layout's navigator has mounted
-    const id = setTimeout(() => {
-      if (!hasCompletedSplash) {
-        router.replace(ROUTES.SPLASH.WELCOME);
-        return;
-      }
-      if (!isLoggedIn) {
-        router.replace(ROUTES.AUTH.LOGIN);
-        return;
-      }
+    // ⛔️ Wait until auth restoration completes
+    if (isRestoring) return;
 
-      if (activeSessionId) {
-        router.replace(`/chat-history/${activeSessionId}`);
-        return;
-      }
+    // 🔐 If not logged in AND hasn't seen welcome → go to welcome
+    if (!isLoggedIn && !hasCompletedSplash) {
+      router.replace('/(splash)/welcome');
+      return;
+    }
 
-      router.replace(ROUTES.TABS.ROOT);
-    }, 0);
-    return () => clearTimeout(id);
-  }, [hasCompletedSplash, isLoggedIn, activeSessionId, router]);
+    // 🔐 If not logged in → go to login
+    if (!isLoggedIn) {
+      router.replace(ROUTES.AUTH.LOGIN);
+      return;
+    }
+
+    // 💬 If user has active session → resume chat
+    if (activeSessionId) {
+      router.replace(`/chat-history/${activeSessionId}`);
+      return;
+    }
+
+    // ✅ Otherwise → go to main tabs
+    router.replace(ROUTES.TABS.ROOT);
+
+  }, [isRestoring, hasCompletedSplash, isLoggedIn, activeSessionId]);
 
   return (
     <View style={styles.container}>

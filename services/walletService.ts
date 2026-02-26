@@ -19,7 +19,7 @@ export const walletService = {
   },
 
   async withdraw(amount: number) {
-    const response = await api.post('/wallet/withdraw', {
+    const response = await api.post('/lawyer/withdraw', {
       amount,
     });
     return response.data;

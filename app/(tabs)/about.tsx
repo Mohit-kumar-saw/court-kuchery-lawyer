@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { StyleSheet, Text, TouchableOpacity, View ,Image} from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 
 import { AppColors } from '@/constants/theme';
 
@@ -17,7 +17,7 @@ export default function AboutScreen() {
       </View>
       <View style={styles.content}>
         <View style={styles.logoSection}>
-         <Image source={require('@/assets/court/court-k-logo.png')} style={styles.logo}/>
+          <Image source={require('@/assets/court/court-k-logo.png')} style={styles.logo} />
         </View>
         <Text style={styles.version}>Version 1.0.0</Text>
         <Text style={styles.description}>
