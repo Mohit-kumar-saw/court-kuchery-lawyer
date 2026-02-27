@@ -6,13 +6,14 @@ import { AppColors, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts';
 
 const MENU_ITEMS = [
+  { id: 'edit-profile', label: 'Edit Profile', icon: 'person-outline', route: '/edit-profile' },
   { id: 'my-cases', label: 'My Cases', icon: 'document-text-outline', route: ROUTES.TABS.MY_CASES },
   { id: 'clients', label: 'Clients', icon: 'people-outline', route: ROUTES.TABS.CLIENTS },
   { id: 'chat-history', label: 'Client Chats', icon: 'chatbubble-ellipses-outline', route: ROUTES.TABS.CHAT_HISTORY },
   { id: 'wallet', label: 'Earnings & Wallet', icon: 'wallet-outline', route: ROUTES.TABS.WALLET },
   { id: 'change-password', label: 'Change Password', icon: 'lock-closed-outline', route: ROUTES.TABS.CHANGE_PASSWORD },
   { id: 'about', label: 'About App', icon: 'information-circle-outline', route: ROUTES.TABS.ABOUT },
-];
+] as const;
 
 export default function ProfileScreen() {
   const { user } = useAuth();
@@ -20,7 +21,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-     
+
       <View style={styles.profileCard}>
         <View style={styles.avatar}>
           <Text style={styles.avatarText}>{user?.name?.charAt(0) ?? 'L'}</Text>

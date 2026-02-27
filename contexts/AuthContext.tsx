@@ -21,6 +21,7 @@ type AuthContextType = {
   login: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, phone: string, password: string) => Promise<void>;
   completeProfile: (data: any) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   logout: () => Promise<void>;
   activeRequest: any | null;
   clearRequest: () => void;
@@ -154,6 +155,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser((prev: any) => ({ ...prev, ...updatedUser, profileCompleted: true }));
   }, []);
 
+  const refreshProfile = useCallback(async () => {
+    const userProfile = await authService.getProfile();
+    setUser(userProfile);
+  }, []);
+
   /* =============================
      LOGOUT
   ============================== */
@@ -178,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         signUp,
         completeProfile,
+        refreshProfile,
         logout,
         activeRequest,
         clearRequest,

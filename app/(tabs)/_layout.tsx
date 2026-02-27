@@ -30,9 +30,15 @@ export default function TabLayout() {
       if (!activeRequest) return;
       await consultService.acceptSession(activeRequest.sessionId);
       const sessionId = activeRequest.sessionId;
+      const type = activeRequest.type;
       clearRequest();
-      // Navigate to chat
-      router.push(`/chat-history/${sessionId}` as any);
+
+      // Navigate based on type
+      if (type === "CALL") {
+        router.push(`/call/${sessionId}` as any);
+      } else {
+        router.push(`/chat-history/${sessionId}` as any);
+      }
     } catch (error) {
       console.error("Accept error:", error);
     }
@@ -126,6 +132,7 @@ export default function TabLayout() {
         <Tabs.Screen name="change-password" options={{ href: null }} />
         <Tabs.Screen name="about" options={{ href: null }} />
         <Tabs.Screen name="lawyers/[id]" options={{ href: null }} />
+        <Tabs.Screen name="chat-view/[id]" options={{ href: null }} />
       </Tabs>
 
       {/* 🔹 Global Sidebar */}

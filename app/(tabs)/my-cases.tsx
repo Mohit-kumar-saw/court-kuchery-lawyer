@@ -62,7 +62,7 @@ export default function MyCasesScreen() {
     return (
       <TouchableOpacity
         style={styles.card}
-        onPress={() => router.push(`/chat-history/${item._id}`)}
+        onPress={() => router.push(`/consult-details/${item._id}` as any)}
         activeOpacity={0.8}
       >
         <View style={styles.cardHeader}>

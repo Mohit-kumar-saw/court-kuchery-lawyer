@@ -28,4 +28,9 @@ export const lawyerService = {
     const response = await api.get('/lawyer/stats');
     return response.data.stats;
   },
+
+  async updateProfile(data: any) {
+    const response = await api.patch('/lawyer/me/update', data);
+    return response.data;
+  },
 };

@@ -27,6 +27,9 @@ export default function RootLayout() {
               <Stack.Screen name="(splash)" />
               <Stack.Screen name="(auth)" />
               <Stack.Screen name="(tabs)" />
+              <Stack.Screen name="call/[id]" />
+              <Stack.Screen name="consult-details/[id]" />
+              <Stack.Screen name="edit-profile" />
               <Stack.Screen
                 name="modal"
                 options={{ presentation: 'modal', title: 'Modal' }}

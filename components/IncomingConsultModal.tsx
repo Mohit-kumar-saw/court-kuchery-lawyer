@@ -52,15 +52,23 @@ export const IncomingConsultModal = ({
 
     if (!request) return null;
 
+    const isCall = request.type === "CALL";
+
     return (
         <Modal visible={visible} transparent animationType="slide">
             <View style={styles.overlay}>
                 <View style={styles.container}>
                     <View style={styles.header}>
-                        <View style={styles.iconCircle}>
-                            <Ionicons name="call" size={30} color={AppColors.primary} />
+                        <View style={[styles.iconCircle, isCall ? styles.callIcon : styles.chatIcon]}>
+                            <Ionicons
+                                name={isCall ? "call" : "chatbubbles"}
+                                size={30}
+                                color={isCall ? "#059669" : AppColors.primary}
+                            />
                         </View>
-                        <Text style={styles.title}>Incoming Consultation</Text>
+                        <Text style={styles.title}>
+                            {isCall ? "Incoming Audio Call" : "Incoming Chat Request"}
+                        </Text>
                         <View style={styles.timerBadge}>
                             <Ionicons name="time" size={14} color={AppColors.primary} />
                             <Text style={styles.timerText}>{timeLeft}s</Text>
@@ -74,7 +82,7 @@ export const IncomingConsultModal = ({
                         />
                         <Text style={styles.userName}>{request.userName}</Text>
                         <Text style={styles.details}>
-                            {request.type} • ₹{request.ratePerMinute}/min
+                            {isCall ? "Audio Consultation" : "Chat Consultation"} • ₹{request.ratePerMinute}/min
                         </Text>
                     </View>
 
@@ -87,10 +95,10 @@ export const IncomingConsultModal = ({
                         </TouchableOpacity>
 
                         <TouchableOpacity
-                            style={[styles.btn, styles.acceptBtn]}
+                            style={[styles.btn, isCall ? styles.acceptCallBtn : styles.acceptBtn]}
                             onPress={onAccept}
                         >
-                            <Text style={styles.acceptText}>Accept</Text>
+                            <Text style={styles.acceptText}>{isCall ? "Answer" : "Accept"}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -120,13 +128,18 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 32,
-        backgroundColor: "#ebf2ff",
         alignItems: "center",
         justifyContent: "center",
         marginBottom: 12,
     },
+    callIcon: {
+        backgroundColor: "#ecfdf5",
+    },
+    chatIcon: {
+        backgroundColor: "#ebf2ff",
+    },
     title: {
-        fontSize: 20,
+        fontSize: 18,
         fontWeight: "700",
         color: AppColors.text,
     },
@@ -146,7 +159,7 @@ const styles = StyleSheet.create({
         color: AppColors.text,
     },
     details: {
-        fontSize: 16,
+        fontSize: 15,
         color: AppColors.textSecondary,
         marginTop: 4,
     },
@@ -167,6 +180,9 @@ const styles = StyleSheet.create({
     acceptBtn: {
         backgroundColor: AppColors.primary,
     },
+    acceptCallBtn: {
+        backgroundColor: "#10b981",
+    },
     declineText: {
         color: "#E11D48",
         fontWeight: "700",
@@ -178,7 +194,7 @@ const styles = StyleSheet.create({
     timerBadge: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#ebf2ff",
+        backgroundColor: "#f1f5f9",
         paddingHorizontal: 12,
         paddingVertical: 4,
         borderRadius: 12,
@@ -188,6 +204,6 @@ const styles = StyleSheet.create({
     timerText: {
         fontSize: 14,
         fontWeight: "700",
-        color: AppColors.primary,
+        color: "#64748b",
     },
 });

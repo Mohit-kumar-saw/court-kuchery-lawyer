@@ -20,4 +20,14 @@ export const consultService = {
         const response = await api.get("/consult/lawyer/all");
         return response.data;
     },
+
+    async endSession(sessionId: string) {
+        const response = await api.post(`/consult/${sessionId}/end`);
+        return response.data;
+    },
+
+    async cancelSession(sessionId: string) {
+        const response = await api.post(`/consult/cancel/${sessionId}`);
+        return response.data;
+    },
 };

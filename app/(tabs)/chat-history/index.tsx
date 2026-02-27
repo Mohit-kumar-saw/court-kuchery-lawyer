@@ -48,7 +48,7 @@ export default function ChatHistoryScreen() {
   }, []);
 
   const handleChatPress = (consultation: Consultation) => {
-    router.push(`/chat-history/${consultation._id}`);
+    router.push(`/consult-details/${consultation._id}` as any);
   };
 
   const renderChat = ({ item }: { item: Consultation }) => (
