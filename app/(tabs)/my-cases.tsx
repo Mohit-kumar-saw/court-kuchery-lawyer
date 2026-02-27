@@ -87,10 +87,10 @@ export default function MyCasesScreen() {
             <Ionicons name="calendar-outline" size={14} color="#64748b" />
             <Text style={styles.footerText}>{date}</Text>
           </View>
-          <View style={styles.footerItem}>
+          {/* <View style={styles.footerItem}>
             <Ionicons name="time-outline" size={14} color="#64748b" />
             <Text style={styles.footerText}>{item.duration || 0} mins</Text>
-          </View>
+          </View> */}
           <View style={styles.footerItem}>
             <Ionicons name="wallet-outline" size={14} color="#64748b" />
             <Text style={styles.footerText}>₹{item.totalAmount?.toFixed(2) || '0.00'}</Text>

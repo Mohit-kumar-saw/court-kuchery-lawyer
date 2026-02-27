@@ -89,15 +89,17 @@ export default function ChatDetailScreen() {
           }, 100);
         });
 
-        socket.on("SESSION_ENDED", (data: any) => {
+        socket.on("SESSION_ENDED", async (data: any) => {
           console.log("ℹ️ Lawyer: Session Ended", data);
+          await clearActiveSession();
           setSummary(data);
           setSummaryVisible(true);
           setSessionActive(false);
         });
 
-        socket.on("SESSION_FORCE_ENDED", (data: any) => {
+        socket.on("SESSION_FORCE_ENDED", async (data: any) => {
           console.log("⚠️ Lawyer: Session Force Ended", data);
+          await clearActiveSession();
           setSummary(data);
           setSummaryVisible(true);
           setSessionActive(false);

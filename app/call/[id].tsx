@@ -81,7 +81,8 @@ export default function LawyerCallScreen() {
         };
     }, [id]);
 
-    const handleCallEnd = (data: any) => {
+    const handleCallEnd = async (data: any) => {
+        await clearActiveSession();
         setSummary(data);
         setSummaryVisible(true);
         setSessionActive(false);

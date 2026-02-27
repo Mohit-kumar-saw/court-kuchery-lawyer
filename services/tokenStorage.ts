@@ -37,6 +37,7 @@ export const tokenStorage = {
       await SecureStore.deleteItemAsync(ACCESS_KEY);
       await SecureStore.deleteItemAsync(REFRESH_KEY);
     }
+    await this.clearActiveSessionData();
   },
 
   async setActiveSessionData(data: string) {
