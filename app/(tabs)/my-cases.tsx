@@ -103,35 +103,34 @@ export default function MyCasesScreen() {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-          <Ionicons name="chevron-back" size={24} color={AppColors.primary} />
-        </TouchableOpacity>
         <Text style={styles.title}>My Cases</Text>
       </View>
 
-      {loading ? (
-        <View style={styles.loader}>
-          <ActivityIndicator size="large" color={AppColors.primary} />
-        </View>
-      ) : (
-        <FlatList
-          data={consultations}
-          keyExtractor={(item) => item._id}
-          renderItem={renderCase}
-          contentContainerStyle={styles.list}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[AppColors.primary]} />
-          }
-          ListEmptyComponent={
-            <View style={styles.emptyState}>
-              <Ionicons name="briefcase-outline" size={64} color="#CBD5E1" />
-              <Text style={styles.emptyTitle}>No cases found</Text>
-              <Text style={styles.emptyText}>Your consultation history will appear here</Text>
-            </View>
-          }
-        />
-      )}
-    </View>
+      {
+        loading ? (
+          <View style={styles.loader}>
+            <ActivityIndicator size="large" color={AppColors.primary} />
+          </View>
+        ) : (
+          <FlatList
+            data={consultations}
+            keyExtractor={(item) => item._id}
+            renderItem={renderCase}
+            contentContainerStyle={styles.list}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={[AppColors.primary]} />
+            }
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <Ionicons name="briefcase-outline" size={64} color="#CBD5E1" />
+                <Text style={styles.emptyTitle}>No cases found</Text>
+                <Text style={styles.emptyText}>Your consultation history will appear here</Text>
+              </View>
+            }
+          />
+        )
+      }
+    </View >
   );
 }
 

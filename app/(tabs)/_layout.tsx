@@ -96,7 +96,7 @@ export default function TabLayout() {
         />
 
         <Tabs.Screen
-          name="chat-history"
+          name="my-cases"
           options={{
             title: 'My Cases',
             tabBarIcon: ({ color, size }) => (
@@ -126,13 +126,16 @@ export default function TabLayout() {
         />
 
         {/* 🔒 Hidden routes */}
-        <Tabs.Screen name="my-cases" options={{ href: null }} />
+
         <Tabs.Screen name="lawyers" options={{ href: null }} />
         <Tabs.Screen name="clients" options={{ href: null }} />
         <Tabs.Screen name="change-password" options={{ href: null }} />
         <Tabs.Screen name="about" options={{ href: null }} />
         <Tabs.Screen name="lawyers/[id]" options={{ href: null }} />
         <Tabs.Screen name="chat-view/[id]" options={{ href: null }} />
+        <Tabs.Screen name="chat-history" options={{ href: null }} />
+        <Tabs.Screen name="chat-history/index" options={{ href: null }} />
+        <Tabs.Screen name="chat-history/[id]" options={{ href: null }} />
       </Tabs>
 
       {/* 🔹 Global Sidebar */}
