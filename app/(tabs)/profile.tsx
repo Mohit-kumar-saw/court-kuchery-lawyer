@@ -1,11 +1,11 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { Href, useRouter } from 'expo-router';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 import { AppColors, ROUTES } from '@/constants';
 import { useAuth } from '@/contexts';
 
-const MENU_ITEMS = [
+const MENU_ITEMS: { id: string; label: string; icon: string; route: Href<any> }[] = [
   { id: 'edit-profile', label: 'Edit Profile', icon: 'person-outline', route: '/edit-profile' },
   { id: 'my-cases', label: 'My Cases', icon: 'document-text-outline', route: ROUTES.TABS.MY_CASES },
   { id: 'clients', label: 'Clients', icon: 'people-outline', route: ROUTES.TABS.CLIENTS },
