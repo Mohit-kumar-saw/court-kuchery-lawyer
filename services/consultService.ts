@@ -30,4 +30,9 @@ export const consultService = {
         const response = await api.post(`/consult/cancel/${sessionId}`);
         return response.data;
     },
+
+    async getAgoraToken(sessionId: string) {
+        const response = await api.get(`/consult/${sessionId}/agora-token`);
+        return response.data;
+    },
 };

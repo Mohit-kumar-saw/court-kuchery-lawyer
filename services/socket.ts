@@ -1,7 +1,6 @@
 import { io, Socket } from "socket.io-client";
 import { tokenStorage } from "./tokenStorage";
-
-const BASE_URL = "http://localhost:4000";
+import { BASE_URL } from "./api";
 
 let socket: Socket | null = null;
 

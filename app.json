@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app needs access to your microphone for audio consultations."
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -20,7 +23,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.mohitkumarsaw.courtkutchery"
+      "package": "com.mohitkumarsaw.courtkutchery",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.INTERNET"
+      ]
     },
     "web": {
       "output": "static",

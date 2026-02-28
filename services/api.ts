@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { tokenStorage } from './tokenStorage';
 
-export const BASE_URL = 'http://localhost:4000';
+export const BASE_URL = 'http://10.30.64.32:4000';
 
 export const api = axios.create({
   baseURL: BASE_URL,
